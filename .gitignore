@@ -1,0 +1,52 @@
+﻿# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Datasets and generated results
+datasets/
+ground_truth_demo/
+outputs/
+
+# Model weights
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.safetensors
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.m4v
+
+# Logs and temporary files
+*.log
+temp/
+tmp/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# External anonymization repository
+vad_source/
+
+# Local patch backup
+video_privacy_player_patch/
