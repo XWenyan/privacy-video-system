@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import cv2
-from PySide6.QtCore import QThread, Signal, Qt, QUrl
+from PySide6.QtCore import QThread, Signal, Qt, QUrl, QTimer
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QFrame, QLabel,
@@ -250,7 +250,8 @@ class AnonymizationPage(QWidget):
             return
         self.selected_video_path = Path(path)
         self.video_name_label.setText(self.selected_video_path.name)
-        self.start_button.setEnabled(True)
+        self.start_button.setText("正在准备…")
+        self.start_button.setEnabled(False)
         self.progress_bar.setValue(0)
         self.chart_label.setText("等待处理完成后生成异常响应曲线。")
         self.chart_label.setPixmap(QPixmap())
@@ -258,7 +259,8 @@ class AnonymizationPage(QWidget):
             label.setText("—")
         self.original_image["label"].setText("已选择视频，等待处理")
         self.original_image["label"].setPixmap(QPixmap())
-        self.status_label.setText("视频已选择，点击“开始自动处理”。")
+        self.status_label.setText("视频已选择，自动开始处理流程……")
+        QTimer.singleShot(0, self.start_pipeline)
 
     def start_pipeline(self):
         if self.selected_video_path is None:
@@ -343,6 +345,7 @@ class AnonymizationPage(QWidget):
 
     def on_worker_finished(self):
         self.select_button.setEnabled(True)
+        self.start_button.setText("重新处理")
         self.start_button.setEnabled(self.selected_video_path is not None)
 
     def _show_image(self, label, path: Path):
