@@ -1,10 +1,18 @@
-import os
-import shutil
+# -*- coding: utf-8 -*-
+"""PySide6 page for the one-click video anonymization pipeline."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
 import cv2
-from PySide6.QtCore import QThread, Signal, Qt, QUrl, QTimer
+from PySide6.QtCore import QThread, Signal, Qt, QUrl
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel,
-    QPushButton, QSlider, QFileDialog, QProgressBar, QSizePolicy, QStackedLayout)
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QFrame, QLabel,
+    QPushButton, QFileDialog, QProgressBar, QSizePolicy, QMessageBox,
+    QScrollArea,
+)
 
 try:
     from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
@@ -14,390 +22,382 @@ except (ImportError, OSError):
     QAudioOutput = QMediaPlayer = QVideoWidget = None
     QT_MULTIMEDIA_AVAILABLE = False
 
+from video_pipeline import process_video
 
-class VideoFrameExtractionWorker(QThread):
-    progress_changed = Signal(int, int)
-    extraction_finished = Signal(str, int, float, int, int)
-    extraction_failed = Signal(str)
 
-    def __init__(self, video_path):
+class PipelineWorker(QThread):
+    progress_changed = Signal(int, str)
+    pipeline_finished = Signal(dict)
+    pipeline_failed = Signal(str)
+
+    def __init__(self, video_path: str, project_root: str):
         super().__init__()
         self.video_path = video_path
-        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.frame_dir = os.path.join(root, "outputs", "extracted_frames")
-        os.makedirs(self.frame_dir, exist_ok=True)
-        for name in os.listdir(self.frame_dir):
-            if name.lower().endswith((".jpg", ".jpeg", ".png")):
-                os.remove(os.path.join(self.frame_dir, name))
+        self.project_root = project_root
 
     def run(self):
-        cap = cv2.VideoCapture(self.video_path)
         try:
-            if not cap.isOpened():
-                raise RuntimeError("无法打开视频文件，请检查视频格式或文件是否损坏。")
-            total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            fps = float(cap.get(cv2.CAP_PROP_FPS))
-            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            count = 0
-            while True:
-                ok, frame = cap.read()
-                if not ok:
-                    break
-                target = os.path.join(self.frame_dir, f"frame_{count:06d}.jpg")
-                if not cv2.imwrite(target, frame, [cv2.IMWRITE_JPEG_QUALITY, 95]):
-                    raise RuntimeError(f"第 {count + 1} 帧保存失败。")
-                count += 1
-                if count % 10 == 0:
-                    self.progress_changed.emit(count, total)
-            if count == 0:
-                raise RuntimeError("没有从视频中读取到有效画面。")
-            self.extraction_finished.emit(self.frame_dir, count, max(fps, 0), width, height)
+            result = process_video(
+                self.video_path,
+                self.project_root,
+                progress_callback=lambda value, message: self.progress_changed.emit(
+                    value, message
+                ),
+                cancel_check=self.isInterruptionRequested,
+            )
+            self.pipeline_finished.emit(result)
+        except InterruptedError as exc:
+            self.pipeline_failed.emit(str(exc))
         except Exception as exc:
-            self.extraction_failed.emit(str(exc))
-        finally:
-            cap.release()
+            import traceback
+            self.pipeline_failed.emit(f"{exc}\n\n{traceback.format_exc()}")
 
 
 class AnonymizationPage(QWidget):
     def __init__(self):
         super().__init__()
-        self.selected_video_path = None
-        self.frame_dir = None
-        self.frame_paths = []
-        self.anonymized_frame_paths = []
-        self.current_frame = None
-        self.worker = None
+        self.project_root = Path(__file__).resolve().parents[1]
+        self.selected_video_path: Path | None = None
+        self.worker: PipelineWorker | None = None
+        self.result: dict | None = None
         self.media_player = None
         self.audio_output = None
-        self.active_output_video_path = None
-        self.source_fps = 0.0
-        self.source_frame_count = 0
-        self.pending_frame_seek = None
         self.init_ui()
-        self.load_default_anonymized_video()
-
-    def get_project_root(self):
-        return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     def init_ui(self):
-        main = QVBoxLayout(self)
-        main.setContentsMargins(25, 18, 25, 16)
-        main.setSpacing(10)
-        title = QLabel("视频匿名化")
-        title.setStyleSheet("font-size:23px;font-weight:bold;color:#243b5a")
-        desc = QLabel("上传监控视频，执行逐帧匿名化，并查看视频异常分数变化。")
-        desc.setStyleSheet("color:#718096;font-size:13px")
-        main.addWidget(title)
-        main.addWidget(desc)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(22, 16, 22, 16)
+        root.setSpacing(10)
 
-        upload = QFrame(); upload.setObjectName("uploadCard")
-        ul = QHBoxLayout(upload); ul.setContentsMargins(16, 8, 16, 8)
-        self.video_label = QLabel("尚未选择视频")
-        self.select_button = QPushButton("选择视频")
-        self.select_button.setFixedSize(120, 38)
+        title = QLabel("视频隐私匿名化系统")
+        title.setStyleSheet("font-size:23px;font-weight:700;color:#243b5a")
+        subtitle = QLabel(
+            "上传视频后自动完成抽帧、FA 匿名化、视频重建、FT 异常分析、"
+            "PSNR/SSIM 评价及人脸检测。"
+        )
+        subtitle.setWordWrap(True)
+        subtitle.setStyleSheet("color:#718096;font-size:13px")
+        root.addWidget(title)
+        root.addWidget(subtitle)
+
+        upload = QFrame()
+        upload.setObjectName("card")
+        upload_layout = QHBoxLayout(upload)
+        upload_layout.setContentsMargins(14, 10, 14, 10)
+        self.video_name_label = QLabel("尚未选择视频")
+        self.video_name_label.setStyleSheet("color:#344256")
+        self.select_button = QPushButton("上传视频")
+        self.select_button.setFixedSize(112, 36)
         self.select_button.clicked.connect(self.select_video)
-        ul.addWidget(self.video_label, 1); ul.addWidget(self.select_button)
-        main.addWidget(upload)
+        self.start_button = QPushButton("开始自动处理")
+        self.start_button.setFixedSize(132, 36)
+        self.start_button.setEnabled(False)
+        self.start_button.clicked.connect(self.start_pipeline)
+        upload_layout.addWidget(self.video_name_label, 1)
+        upload_layout.addWidget(self.select_button)
+        upload_layout.addWidget(self.start_button)
+        root.addWidget(upload)
 
-        self.extraction_progress = QProgressBar()
-        self.extraction_progress.setRange(0, 100)
-        self.extraction_progress.setTextVisible(False)
-        self.extraction_progress.setFixedHeight(6)
-        self.extraction_progress.hide()
-        main.addWidget(self.extraction_progress)
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+        root.addWidget(self.progress_bar)
 
-        previews = QHBoxLayout(); previews.setSpacing(14)
-        self.original_panel = self.create_preview_panel("原始视频帧")
-        self.original_image_area = self.original_panel.image_area
-        self.anonymized_panel = self.create_video_player_panel()
-        previews.addWidget(self.original_panel, 1)
+        self.status_label = QLabel("系统就绪，请上传视频。")
+        self.status_label.setWordWrap(True)
+        self.status_label.setStyleSheet("color:#64748b;font-size:12px")
+        root.addWidget(self.status_label)
+
+        previews = QHBoxLayout()
+        previews.setSpacing(12)
+        self.original_image = self._make_image_panel("原始视频画面", "等待上传视频")
+        self.anonymized_panel = self._make_video_panel()
+        previews.addWidget(self.original_image["panel"], 1)
         previews.addWidget(self.anonymized_panel, 1)
-        main.addLayout(previews, 5)
+        root.addLayout(previews, 4)
 
-        progress = QFrame(); progress.setObjectName("contentCard")
-        pl = QVBoxLayout(progress); pl.setContentsMargins(16, 8, 16, 8); pl.setSpacing(6)
-        header = QHBoxLayout()
-        ptitle = QLabel("视频同步进度"); ptitle.setStyleSheet("font-weight:bold;color:#243b5a")
-        self.frame_counter = QLabel("0 / 0 帧"); self.frame_counter.setStyleSheet("color:#718096")
-        header.addWidget(ptitle); header.addStretch(); header.addWidget(self.frame_counter)
-        pl.addLayout(header)
-        controls = QHBoxLayout(); controls.setSpacing(10)
-        self.play_button = QPushButton("播放"); self.play_button.setFixedSize(76, 34)
-        self.play_button.setEnabled(False); self.play_button.clicked.connect(self.toggle_video_playback)
-        self.frame_slider = QSlider(Qt.Orientation.Horizontal)
-        self.frame_slider.setRange(0, 0); self.frame_slider.setEnabled(False)
-        self.frame_slider.valueChanged.connect(self.on_frame_changed)
-        controls.addWidget(self.play_button); controls.addWidget(self.frame_slider, 1)
-        pl.addLayout(controls); main.addWidget(progress)
+        chart_panel = QFrame()
+        chart_panel.setObjectName("card")
+        chart_layout = QVBoxLayout(chart_panel)
+        chart_layout.setContentsMargins(12, 9, 12, 9)
+        chart_title = QLabel("FT 异常响应曲线")
+        chart_title.setStyleSheet("font-weight:700;color:#243b5a")
+        self.chart_label = QLabel("完成视频处理后，在这里展示匿名化视频的异常响应曲线。")
+        self.chart_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.chart_label.setMinimumHeight(150)
+        self.chart_label.setStyleSheet(
+            "background:#f7f8fa;color:#8a9bb0;border-radius:5px;padding:8px"
+        )
+        chart_layout.addWidget(chart_title)
+        chart_layout.addWidget(self.chart_label, 1)
+        root.addWidget(chart_panel, 3)
 
-        chart = QFrame(); chart.setObjectName("contentCard")
-        cl = QVBoxLayout(chart); cl.setContentsMargins(16, 7, 16, 7)
-        ct = QLabel("视频异常分数变化"); ct.setStyleSheet("font-weight:bold;color:#243b5a")
-        self.chart_placeholder = QLabel("完成匿名化与 VAD 推理后，将在这里显示逐帧异常分数曲线。")
-        self.chart_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.chart_placeholder.setMinimumHeight(55)
-        self.chart_placeholder.setStyleSheet("background:#f7f8fa;color:#8a9bb0;border-radius:5px")
-        cl.addWidget(ct); cl.addWidget(self.chart_placeholder); main.addWidget(chart, 1)
-        self.status_label = QLabel("系统就绪，等待选择视频。")
-        self.status_label.setStyleSheet("color:#718096;font-size:12px")
-        main.addWidget(self.status_label)
+        metrics_panel = QFrame()
+        metrics_panel.setObjectName("card")
+        metrics_layout = QVBoxLayout(metrics_panel)
+        metrics_layout.setContentsMargins(12, 9, 12, 9)
+        metrics_title = QLabel("自动评价结果")
+        metrics_title.setStyleSheet("font-weight:700;color:#243b5a")
+        metrics_layout.addWidget(metrics_title)
+
+        grid = QGridLayout()
+        grid.setHorizontalSpacing(10)
+        grid.setVerticalSpacing(8)
+        self.metric_labels = {}
+        metric_specs = [
+            ("psnr", "PSNR（均值 ± 标准差）"),
+            ("ssim", "SSIM（均值 ± 标准差）"),
+            ("original_face_rate", "原始视频人脸检出率"),
+            ("anonymized_face_rate", "匿名化视频人脸检出率"),
+            ("face_delta", "人脸检出率变化"),
+            ("face_boxes", "人脸检测框数量（原始 / 匿名化）"),
+        ]
+        for index, (key, label_text) in enumerate(metric_specs):
+            cell = QFrame()
+            cell.setStyleSheet("background:#f7f9fb;border-radius:5px")
+            cell_layout = QVBoxLayout(cell)
+            cell_layout.setContentsMargins(10, 7, 10, 7)
+            name = QLabel(label_text)
+            name.setStyleSheet("color:#718096;font-size:11px")
+            value = QLabel("—")
+            value.setStyleSheet("color:#243b5a;font-size:17px;font-weight:700")
+            value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            cell_layout.addWidget(name)
+            cell_layout.addWidget(value)
+            grid.addWidget(cell, index // 3, index % 3)
+            self.metric_labels[key] = value
+        metrics_layout.addLayout(grid)
+        root.addWidget(metrics_panel, 1)
+
         self.setStyleSheet("""
-            QFrame#uploadCard,QFrame#contentCard{background:white;border:1px solid #dce3ea;border-radius:7px}
+            QFrame#card{background:white;border:1px solid #dce3ea;border-radius:7px}
             QPushButton{background:#2f9e62;color:white;border:0;border-radius:5px;padding:6px 10px}
-            QPushButton:hover{background:#278653} QPushButton:disabled{background:#aab5bd}
-            QSlider::groove:horizontal{height:5px;background:#dce3e8;border-radius:2px}
-            QSlider::handle:horizontal{background:#2f9e62;width:14px;height:14px;margin:-5px 0;border-radius:7px}
-            QProgressBar{background:#e9edf0;border:0;border-radius:3px}
+            QPushButton:hover{background:#278653}
+            QPushButton:disabled{background:#aab5bd;color:#f7f7f7}
+            QProgressBar{background:#e9edf0;border:0;border-radius:3px;height:7px}
             QProgressBar::chunk{background:#2f9e62;border-radius:3px}
         """)
 
-    def _prepare_label(self, label, bg="#111827"):
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setMinimumSize(0, 0)
-        label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        label.setScaledContents(False)
-        label.setStyleSheet(f"background:{bg};color:white;border-radius:5px")
+    def _make_image_panel(self, title, placeholder):
+        panel = QFrame()
+        panel.setObjectName("card")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(10, 8, 10, 10)
+        heading = QLabel(title)
+        heading.setStyleSheet("font-weight:700;color:#243b5a")
+        image = QLabel(placeholder)
+        image.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        image.setMinimumHeight(150)
+        image.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        image.setStyleSheet(
+            "background:#111827;color:#cbd5e1;border-radius:5px"
+        )
+        layout.addWidget(heading)
+        layout.addWidget(image, 1)
+        return {"panel": panel, "label": image}
 
-    def create_preview_panel(self, panel_title):
-        panel = QFrame(); panel.setObjectName("contentCard")
-        panel.setMinimumHeight(220)
-        panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        layout = QVBoxLayout(panel); layout.setContentsMargins(12, 10, 12, 10); layout.setSpacing(7)
-        heading = QLabel(panel_title); heading.setStyleSheet("font-weight:bold;color:#243b5a")
-        image = QLabel("等待视频处理")
-        self._prepare_label(image, "#f0f2f5")
-        image.setStyleSheet("background:#f0f2f5;color:#8a9bb0;border:1px dashed #cbd5e1;border-radius:5px")
-        layout.addWidget(heading); layout.addWidget(image, 1)
-        panel.image_area = image
-        return panel
+    def _make_video_panel(self):
+        panel = QFrame()
+        panel.setObjectName("card")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(10, 8, 10, 10)
+        heading = QLabel("匿名化结果视频")
+        heading.setStyleSheet("font-weight:700;color:#243b5a")
+        layout.addWidget(heading)
 
-    def create_video_player_panel(self):
-        panel = QFrame(); panel.setObjectName("contentCard")
-        panel.setMinimumHeight(220)
-        panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        layout = QVBoxLayout(panel); layout.setContentsMargins(12, 10, 12, 10); layout.setSpacing(7)
-        header = QHBoxLayout()
-        heading = QLabel("匿名化结果视频"); heading.setStyleSheet("font-weight:bold;color:#243b5a")
-        self.select_result_button = QPushButton("选择结果视频")
-        self.select_result_button.setFixedHeight(30)
-        self.select_result_button.clicked.connect(self.select_anonymized_video)
-        self.select_result_button.setEnabled(QT_MULTIMEDIA_AVAILABLE)
-        header.addWidget(heading); header.addStretch(); header.addWidget(self.select_result_button)
-        layout.addLayout(header)
         if QT_MULTIMEDIA_AVAILABLE:
             self.video_widget = QVideoWidget()
-            self.video_widget.setMinimumSize(0, 0)
-            self.video_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-            self.video_widget.setStyleSheet("background:#111827")
-            self.output_preview_label = QLabel("等待匿名化视频")
-            self._prepare_label(self.output_preview_label)
-            self.output_stack = QStackedLayout(); self.output_stack.setContentsMargins(0, 0, 0, 0)
-            self.output_stack.addWidget(self.video_widget)
-            self.output_stack.addWidget(self.output_preview_label)
-            self.output_stack.setCurrentWidget(self.output_preview_label)
-            layout.addLayout(self.output_stack, 1)
+            self.video_widget.setMinimumHeight(150)
+            self.video_widget.setStyleSheet("background:#111827;border-radius:5px")
+            layout.addWidget(self.video_widget, 1)
+            controls = QHBoxLayout()
+            self.play_button = QPushButton("播放")
+            self.play_button.setEnabled(False)
+            self.play_button.clicked.connect(self.toggle_playback)
+            self.output_path_label = QLabel("等待生成匿名化视频")
+            self.output_path_label.setStyleSheet("color:#718096;font-size:11px")
+            self.output_path_label.setWordWrap(True)
+            controls.addWidget(self.play_button)
+            controls.addWidget(self.output_path_label, 1)
+            layout.addLayout(controls)
             self.audio_output = QAudioOutput(self)
             self.media_player = QMediaPlayer(self)
             self.media_player.setAudioOutput(self.audio_output)
             self.media_player.setVideoOutput(self.video_widget)
-            self.media_player.durationChanged.connect(self.on_media_duration_changed)
-            self.media_player.positionChanged.connect(self.on_media_position_changed)
-            self.media_player.playbackStateChanged.connect(self.on_playback_state_changed)
-            self.media_player.mediaStatusChanged.connect(self.on_media_status_changed)
-            self.media_player.errorOccurred.connect(self.on_media_error)
+            self.media_player.playbackStateChanged.connect(self._playback_state_changed)
+            self.media_player.errorOccurred.connect(self._media_error)
         else:
-            self.video_widget = QLabel("当前 PySide6 环境缺少 Qt Multimedia 模块。")
-            self.video_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            layout.addWidget(self.video_widget, 1)
-            self.output_preview_label = None
-            self.output_stack = None
+            self.video_widget = None
+            self.play_button = None
+            self.output_path_label = QLabel(
+                "当前 PySide6 环境不支持 Qt Multimedia，"
+                "处理完成后仍会保存匿名化视频文件。"
+            )
+            self.output_path_label.setWordWrap(True)
+            layout.addWidget(self.output_path_label, 1)
         return panel
 
-    def load_default_anonymized_video(self):
-        if not QT_MULTIMEDIA_AVAILABLE:
-            self.status_label.setText("当前 PySide6 环境不支持 Qt Multimedia，视频播放器不可用。"); return
-        out = os.path.join(self.get_project_root(), "outputs")
-        for name in ("anonymized_video_with_audio.mp4", "anonymized_video.mp4"):
-            path = os.path.join(out, name)
-            if os.path.isfile(path):
-                self.load_anonymized_video(path); return
-        self.status_label.setText("未找到输出视频。请先完成匿名化，或手动选择结果视频。")
-
-    def select_anonymized_video(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择匿名化结果视频",
-            os.path.join(self.get_project_root(), "outputs"),
-            "视频文件 (*.mp4 *.m4v *.mov *.avi *.mkv);;所有文件 (*.*)")
-        if path: self.load_anonymized_video(path)
-
-    def load_anonymized_video(self, path):
-        if self.media_player is None or not os.path.isfile(path):
-            self.status_label.setText("视频播放器不可用，或找不到所选视频文件。"); return
-        self.media_player.stop()
-        self.active_output_video_path = os.path.abspath(path)
-        self.pending_frame_seek = self.frame_slider.value() if self.frame_paths else 0
-        self.media_player.setSource(QUrl.fromLocalFile(self.active_output_video_path))
-        self.play_button.setEnabled(True)
-        self.play_button.setText("播放")
-        self.output_stack.setCurrentWidget(self.output_preview_label)
-        self.status_label.setText("匿名化结果视频已加载，可通过公共进度条定位画面。")
-
-    def toggle_video_playback(self):
-        if self.media_player is None: return
-        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
-            self.media_player.pause()
-        else:
-            if self.media_player.duration() > 0 and self.media_player.position() >= self.media_player.duration():
-                self.media_player.setPosition(0)
-            self.output_stack.setCurrentWidget(self.video_widget)
-            self.media_player.play()
-
-    def on_playback_state_changed(self, state):
-        if state == QMediaPlayer.PlaybackState.PlayingState:
-            self.play_button.setText("暂停")
-            self.output_stack.setCurrentWidget(self.video_widget)
-        else:
-            self.play_button.setText("播放")
-            if self.frame_paths: self.show_anonymized_frame(self.frame_slider.value())
-            self.output_stack.setCurrentWidget(self.output_preview_label)
-
-    def on_media_duration_changed(self, duration):
-        if duration > 0 and self.pending_frame_seek is not None:
-            index = self.pending_frame_seek; self.pending_frame_seek = None
-            self.seek_anonymized_video_to_frame(index)
-
-    def on_media_position_changed(self, position):
-        if not self.frame_paths or self.source_fps <= 0 or self.frame_slider.isSliderDown(): return
-        index = max(0, min(int(round(position * self.source_fps / 1000)), len(self.frame_paths)-1))
-        if self.frame_slider.value() != index:
-            self.frame_slider.blockSignals(True); self.frame_slider.setValue(index); self.frame_slider.blockSignals(False)
-        self.show_frame(index)
-
-    def seek_anonymized_video_to_frame(self, index):
-        if self.media_player is None or self.source_fps <= 0: return
-        duration = self.media_player.duration()
-        if duration <= 0:
-            self.pending_frame_seek = index; return
-        position = int(round(index * 1000 / self.source_fps))
-        self.media_player.setPosition(max(0, min(position, duration)))
-        if self.media_player.playbackState() != QMediaPlayer.PlaybackState.PlayingState:
-            self.show_anonymized_frame(index)
-
-    def on_media_status_changed(self, status):
-        if status == QMediaPlayer.MediaStatus.LoadedMedia:
-            if self.pending_frame_seek is not None:
-                index = self.pending_frame_seek; self.pending_frame_seek = None
-                self.seek_anonymized_video_to_frame(index)
-            self.status_label.setText("匿名化视频已就绪，可以播放或拖动进度条查看。")
-        elif status == QMediaPlayer.MediaStatus.EndOfMedia:
-            self.play_button.setText("播放")
-            if self.frame_paths: self.show_anonymized_frame(self.frame_slider.value())
-            self.output_stack.setCurrentWidget(self.output_preview_label)
-            self.status_label.setText("视频播放结束，可以拖动进度条重新查看。")
-        elif status == QMediaPlayer.MediaStatus.InvalidMedia:
-            self.status_label.setText("匿名化视频无法解码，请检查文件格式或编码。")
-
-    def on_media_error(self, error, message):
-        if error != QMediaPlayer.Error.NoError:
-            self.status_label.setText(f"视频播放失败：{message}")
-
     def select_video(self):
-        if self.worker is not None and self.worker.isRunning(): return
-        path, _ = QFileDialog.getOpenFileName(self, "选择监控视频", "",
-            "视频文件 (*.mp4 *.avi *.mov *.mkv);;所有文件 (*.*)")
-        if not path: return
-        self.selected_video_path = path
-        self.frame_paths = []; self.anonymized_frame_paths = []; self.current_frame = None
-        self.source_fps = 0.0; self.source_frame_count = 0
-        self.video_label.setText(os.path.basename(path))
-        self.original_image_area.setText("正在读取视频并抽取帧..."); self.original_image_area.setPixmap(QPixmap())
-        if self.output_preview_label is not None:
-            self.output_preview_label.setText("等待匿名化视频帧"); self.output_preview_label.setPixmap(QPixmap())
-        self.frame_slider.setEnabled(False); self.frame_slider.setRange(0, 0)
-        self.frame_counter.setText("0 / 0 帧")
-        self.extraction_progress.setValue(0); self.extraction_progress.show()
-        self.select_button.setEnabled(False); self.status_label.setText("正在读取视频，请稍候...")
-        self.worker = VideoFrameExtractionWorker(path)
-        self.worker.progress_changed.connect(self.on_extraction_progress)
-        self.worker.extraction_finished.connect(self.on_extraction_finished)
-        self.worker.extraction_failed.connect(self.on_extraction_failed)
+        if self.worker is not None and self.worker.isRunning():
+            return
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "选择待匿名化视频",
+            "",
+            "视频文件 (*.mp4 *.avi *.mov *.mkv *.m4v);;所有文件 (*.*)",
+        )
+        if not path:
+            return
+        self.selected_video_path = Path(path)
+        self.video_name_label.setText(self.selected_video_path.name)
+        self.start_button.setEnabled(True)
+        self.progress_bar.setValue(0)
+        self.chart_label.setText("等待处理完成后生成异常响应曲线。")
+        self.chart_label.setPixmap(QPixmap())
+        for label in self.metric_labels.values():
+            label.setText("—")
+        self.original_image["label"].setText("已选择视频，等待处理")
+        self.original_image["label"].setPixmap(QPixmap())
+        self.status_label.setText("视频已选择，点击“开始自动处理”。")
+
+    def start_pipeline(self):
+        if self.selected_video_path is None:
+            return
+        if self.worker is not None and self.worker.isRunning():
+            return
+
+        self.select_button.setEnabled(False)
+        self.start_button.setEnabled(False)
+        self.progress_bar.setValue(0)
+        self.status_label.setText("正在启动处理流程……")
+
+        self.worker = PipelineWorker(
+            str(self.selected_video_path),
+            str(self.project_root),
+        )
+        self.worker.progress_changed.connect(self.on_progress)
+        self.worker.pipeline_finished.connect(self.on_pipeline_finished)
+        self.worker.pipeline_failed.connect(self.on_pipeline_failed)
+        self.worker.finished.connect(self.on_worker_finished)
         self.worker.start()
 
-    def on_extraction_progress(self, current, total):
-        if total > 0:
-            self.extraction_progress.setValue(min(int(current / total * 100), 100))
-            self.status_label.setText(f"正在抽取视频帧：{current} / 约 {total} 帧")
-        else: self.status_label.setText(f"正在抽取视频帧：已处理 {current} 帧")
+    def on_progress(self, value, message):
+        self.progress_bar.setValue(value)
+        self.status_label.setText(message)
 
-    def on_extraction_finished(self, frame_dir, count, fps, width, height):
-        self.frame_dir = frame_dir
-        self.frame_paths = [os.path.join(frame_dir, f"frame_{i:06d}.jpg") for i in range(count)]
-        self.source_fps = fps if fps > 0 else 0.0; self.source_frame_count = count
-        anon_dir = os.path.join(self.get_project_root(), "outputs", "anonymized_frames")
-        if os.path.isdir(anon_dir):
-            names = [n for n in os.listdir(anon_dir) if n.startswith("frame_") and n.lower().endswith((".png", ".jpg", ".jpeg"))]
-            self.anonymized_frame_paths = [os.path.join(anon_dir, n) for n in sorted(names)]
-        else: self.anonymized_frame_paths = []
-        duration = count / fps if fps > 0 else 0
-        self.video_label.setText(f"{os.path.basename(self.selected_video_path)} | {width}×{height} | {fps:.2f} FPS | {duration:.2f} 秒")
-        self.frame_slider.blockSignals(True); self.frame_slider.setRange(0, count-1); self.frame_slider.setValue(0); self.frame_slider.blockSignals(False)
-        self.frame_slider.setEnabled(count > 1); self.frame_counter.setText(f"1 / {count} 帧")
-        self.extraction_progress.hide(); self.select_button.setEnabled(True)
-        self.show_frame(0); self.show_anonymized_frame(0); self.seek_anonymized_video_to_frame(0)
-        self.status_label.setText(f"视频读取完成，共抽取 {count} 帧。可通过公共进度条同步查看两侧画面。")
-        QTimer.singleShot(0, self.refresh_preview_images)
+    def on_pipeline_finished(self, result):
+        self.result = result
+        first_frame = Path(result["original_frames_dir"]) / "frame_000000.jpg"
+        self._show_image(self.original_image["label"], first_frame)
 
-    def on_extraction_failed(self, message):
-        self.extraction_progress.hide(); self.select_button.setEnabled(True)
-        self.original_image_area.setText("视频读取失败")
-        self.status_label.setText(f"处理失败：{message}")
+        curve_path = Path(result["curve_path"])
+        pixmap = QPixmap(str(curve_path))
+        if pixmap.isNull():
+            self.chart_label.setText(f"曲线图片无法加载：{curve_path}")
+        else:
+            self.chart_label.setPixmap(
+                pixmap.scaled(
+                    self.chart_label.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
 
-    def on_frame_changed(self, index):
-        if not self.frame_paths: return
-        self.show_frame(index); self.show_anonymized_frame(index)
-        self.seek_anonymized_video_to_frame(index)
+        quality = result["image_quality"]
+        face = result["face_detection"]
+        self.metric_labels["psnr"].setText(
+            f'{quality["psnr_mean"]:.4f} ± {quality["psnr_std"]:.4f} dB'
+        )
+        self.metric_labels["ssim"].setText(
+            f'{quality["ssim_mean"]:.4f} ± {quality["ssim_std"]:.4f}'
+        )
+        self.metric_labels["original_face_rate"].setText(
+            f'{face["original_detection_rate"]:.2f}%'
+        )
+        self.metric_labels["anonymized_face_rate"].setText(
+            f'{face["anonymized_detection_rate"]:.2f}%'
+        )
+        self.metric_labels["face_delta"].setText(
+            f'{face["detection_rate_delta_pp"]:+.2f} 个百分点'
+        )
+        self.metric_labels["face_boxes"].setText(
+            f'{face["original_face_boxes"]} / {face["anonymized_face_boxes"]}'
+        )
 
-    def _display_cv_frame(self, frame, label):
-        if frame is None or label is None: return
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        h, w, _ = rgb.shape
-        image = QImage(rgb.data, w, h, w*3, QImage.Format.Format_RGB888).copy()
-        pixmap = QPixmap.fromImage(image)
-        area = label.contentsRect().size()
-        if area.width() < 2 or area.height() < 2:
-            QTimer.singleShot(0, self.refresh_preview_images); return
-        label.setPixmap(pixmap.scaled(area, Qt.AspectRatioMode.KeepAspectRatio,
-                                      Qt.TransformationMode.SmoothTransformation))
+        output_video = Path(result["anonymized_video_path"])
+        self.output_path_label.setText(str(output_video))
+        if self.media_player is not None and output_video.is_file():
+            self.media_player.stop()
+            self.media_player.setSource(QUrl.fromLocalFile(str(output_video)))
+            self.play_button.setEnabled(True)
 
-    def show_frame(self, index):
-        if index < 0 or index >= len(self.frame_paths): return
-        frame = cv2.imread(self.frame_paths[index])
-        if frame is None:
-            self.status_label.setText(f"无法读取第 {index+1} 帧。"); return
-        self.current_frame = frame
-        self._display_cv_frame(frame, self.original_image_area)
-        self.frame_counter.setText(f"{index+1} / {len(self.frame_paths)} 帧")
+        self.status_label.setText(
+            f'处理完成：{result["frame_count"]} 帧，'
+            f'结果已保存到 {result["output_dir"]}'
+        )
+        self.progress_bar.setValue(100)
 
-    def show_anonymized_frame(self, index):
-        if self.output_preview_label is None: return
-        if index < 0 or index >= len(self.anonymized_frame_paths):
-            if not self.anonymized_frame_paths:
-                self.output_preview_label.setText("尚未找到匿名化帧，请先完成视频匿名化")
-                self.output_preview_label.setPixmap(QPixmap())
+    def on_pipeline_failed(self, message):
+        self.status_label.setText("处理失败，请查看错误信息。")
+        QMessageBox.critical(self, "视频处理失败", message)
+
+    def on_worker_finished(self):
+        self.select_button.setEnabled(True)
+        self.start_button.setEnabled(self.selected_video_path is not None)
+
+    def _show_image(self, label, path: Path):
+        image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+        if image is None:
+            label.setText(f"无法读取图片：{path}")
             return
-        frame = cv2.imread(self.anonymized_frame_paths[index])
-        if frame is not None: self._display_cv_frame(frame, self.output_preview_label)
-
-    def refresh_preview_images(self):
-        if self.current_frame is not None: self._display_cv_frame(self.current_frame, self.original_image_area)
-        if self.anonymized_frame_paths: self.show_anonymized_frame(self.frame_slider.value())
+        rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        height, width, channels = rgb.shape
+        qimage = QImage(
+            rgb.data,
+            width,
+            height,
+            channels * width,
+            QImage.Format.Format_RGB888,
+        ).copy()
+        label.setPixmap(
+            QPixmap.fromImage(qimage).scaled(
+                label.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        QTimer.singleShot(0, self.refresh_preview_images)
+        if self.result:
+            self._show_image(
+                self.original_image["label"],
+                Path(self.result["original_frames_dir"]) / "frame_000000.jpg",
+            )
+            self.chart_label.setPixmap(
+                QPixmap(self.result["curve_path"]).scaled(
+                    self.chart_label.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
 
-    def closeEvent(self, event):
-        if self.media_player is not None: self.media_player.stop()
-        if self.worker is not None and self.worker.isRunning():
-            self.worker.quit(); self.worker.wait(1500)
-        super().closeEvent(event)
+    def toggle_playback(self):
+        if self.media_player is None:
+            return
+        from PySide6.QtMultimedia import QMediaPlayer
+        if self.media_player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+            self.media_player.pause()
+        else:
+            self.media_player.play()
+
+    def _playback_state_changed(self, state):
+        from PySide6.QtMultimedia import QMediaPlayer
+        if self.play_button is not None:
+            self.play_button.setText(
+                "暂停" if state == QMediaPlayer.PlaybackState.PlayingState else "播放"
+            )
+
+    def _media_error(self, error, message):
+        if self.media_player is not None:
+            self.status_label.setText(f"匿名化视频播放失败：{message}")
