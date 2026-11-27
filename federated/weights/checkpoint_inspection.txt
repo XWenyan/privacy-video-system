@@ -1,0 +1,753 @@
+==============================================================================
+Federated-VAD checkpoint inspection
+==============================================================================
+Checkpoint : D:\privacy-video-system\federated\weights\checkpoint-best-fed.pth
+File size  : 104.92 MB
+PyTorch    : 2.15.0+cpu
+Root type  : dict
+
+[1] Top-level checkpoint keys
+  - global_params
+  - local_states
+  - micro_auc
+  - macro_auc
+  - round
+  - args
+  - timestamp
+
+[2] Main metadata fields
+  round: 10
+  micro_auc: np.float64(0.8514219529452123)
+  macro_auc: np.float64(0.8847474166153494)
+
+[3] Global model parameters
+
+Global parameter summary
+  Tensor count : 61
+  Total numel  : 2,372,352
+  Tensor examples (up to 25):
+    - Global parameter summary.mae_model.patch_embed.proj.weight: Tensor(shape=(256, 9, 8, 8), dtype=torch.float32, numel=147,456)
+    - Global parameter summary.mae_model.patch_embed.proj.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.patch_embed.norm.weight: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.patch_embed.norm.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.norm1.weight: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.norm1.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.attn.qkv.weight: Tensor(shape=(768, 256), dtype=torch.float32, numel=196,608)
+    - Global parameter summary.mae_model.blocks.0.attn.qkv.bias: Tensor(shape=(768,), dtype=torch.float32, numel=768)
+    - Global parameter summary.mae_model.blocks.0.attn.proj.weight: Tensor(shape=(256, 256), dtype=torch.float32, numel=65,536)
+    - Global parameter summary.mae_model.blocks.0.attn.proj.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.attn.adapter.down.weight: Tensor(shape=(256, 256), dtype=torch.float32, numel=65,536)
+    - Global parameter summary.mae_model.blocks.0.attn.adapter.down.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.attn.adapter.up.weight: Tensor(shape=(512, 256), dtype=torch.float32, numel=131,072)
+    - Global parameter summary.mae_model.blocks.0.attn.adapter.up.bias: Tensor(shape=(512,), dtype=torch.float32, numel=512)
+    - Global parameter summary.mae_model.blocks.0.attn.adapter.scene_modulation.0.weight: Tensor(shape=(256, 64), dtype=torch.float32, numel=16,384)
+    - Global parameter summary.mae_model.blocks.0.attn.adapter.scene_modulation.0.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.norm2.weight: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.norm2.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.0.mlp.fc1.weight: Tensor(shape=(512, 256), dtype=torch.float32, numel=131,072)
+    - Global parameter summary.mae_model.blocks.0.mlp.fc1.bias: Tensor(shape=(512,), dtype=torch.float32, numel=512)
+    - Global parameter summary.mae_model.blocks.0.mlp.fc2.weight: Tensor(shape=(256, 512), dtype=torch.float32, numel=131,072)
+    - Global parameter summary.mae_model.blocks.0.mlp.fc2.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.1.norm1.weight: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.1.norm1.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+    - Global parameter summary.mae_model.blocks.1.attn.qkv.weight: Tensor(shape=(768, 256), dtype=torch.float32, numel=196,608)
+
+[4] Personalized client states
+  Client/state entries found: 4
+
+  Client: client_0
+    State keys: ['local_params', 'optimizer', 'scene_encoder', 'scene_optimizer']
+    Tensor count: 362
+    Total numel : 6,254,312
+      - local_states.client_0.local_params.mae_model.decoder_embed.weight: Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+      - local_states.client_0.local_params.mae_model.decoder_embed.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.norm1.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.norm1.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.attn.qkv.weight: Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.attn.qkv.bias: Tensor(shape=(384,), dtype=torch.float32, numel=384)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.attn.proj.weight: Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.attn.proj.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.norm2.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.norm2.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.mlp.fc1.weight: Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+      - local_states.client_0.local_params.mae_model.decoder_blocks.0.mlp.fc1.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+
+  Client: client_1
+    State keys: ['local_params', 'optimizer', 'scene_encoder', 'scene_optimizer']
+    Tensor count: 362
+    Total numel : 6,254,312
+      - local_states.client_1.local_params.mae_model.decoder_embed.weight: Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+      - local_states.client_1.local_params.mae_model.decoder_embed.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.norm1.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.norm1.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.attn.qkv.weight: Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.attn.qkv.bias: Tensor(shape=(384,), dtype=torch.float32, numel=384)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.attn.proj.weight: Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.attn.proj.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.norm2.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.norm2.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.mlp.fc1.weight: Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+      - local_states.client_1.local_params.mae_model.decoder_blocks.0.mlp.fc1.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+
+  Client: client_2
+    State keys: ['local_params', 'optimizer', 'scene_encoder', 'scene_optimizer']
+    Tensor count: 362
+    Total numel : 6,254,312
+      - local_states.client_2.local_params.mae_model.decoder_embed.weight: Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+      - local_states.client_2.local_params.mae_model.decoder_embed.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.norm1.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.norm1.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.attn.qkv.weight: Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.attn.qkv.bias: Tensor(shape=(384,), dtype=torch.float32, numel=384)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.attn.proj.weight: Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.attn.proj.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.norm2.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.norm2.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.mlp.fc1.weight: Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+      - local_states.client_2.local_params.mae_model.decoder_blocks.0.mlp.fc1.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+
+  Client: client_3
+    State keys: ['local_params', 'optimizer', 'scene_encoder', 'scene_optimizer']
+    Tensor count: 362
+    Total numel : 6,254,312
+      - local_states.client_3.local_params.mae_model.decoder_embed.weight: Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+      - local_states.client_3.local_params.mae_model.decoder_embed.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.norm1.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.norm1.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.attn.qkv.weight: Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.attn.qkv.bias: Tensor(shape=(384,), dtype=torch.float32, numel=384)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.attn.proj.weight: Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.attn.proj.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.norm2.weight: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.norm2.bias: Tensor(shape=(128,), dtype=torch.float32, numel=128)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.mlp.fc1.weight: Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+      - local_states.client_3.local_params.mae_model.decoder_blocks.0.mlp.fc1.bias: Tensor(shape=(256,), dtype=torch.float32, numel=256)
+
+[5] Saved training/model configuration
+  dataset = 'shanghai'
+  input_size = (160, 320)
+  fed_scene_dim = 64
+  mask_ratio = 0.5
+  masking_method = 'random_masking'
+  fed_mid_dim = 256
+  fed_scale = 1.5
+  fed_prefix_depth = 3
+  fed_local_parts = ['adapter']
+  abnormal_score_func = ['L2', 'L2']
+  grad_weighted_rec_loss = True
+  input_3d = True
+  run_type = 'train'
+  model = 'mae_vit'
+  Total flattened config entries: 35
+
+[6] Full checkpoint structure (tensor values are NOT printed)
+dict(keys=7)
+  ['global_params']:
+    dict(keys=61)
+      ['mae_model.patch_embed.proj.weight']:
+        Tensor(shape=(256, 9, 8, 8), dtype=torch.float32, numel=147,456)
+      ['mae_model.patch_embed.proj.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.patch_embed.norm.weight']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.patch_embed.norm.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.norm1.weight']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.norm1.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.attn.qkv.weight']:
+        Tensor(shape=(768, 256), dtype=torch.float32, numel=196,608)
+      ['mae_model.blocks.0.attn.qkv.bias']:
+        Tensor(shape=(768,), dtype=torch.float32, numel=768)
+      ['mae_model.blocks.0.attn.proj.weight']:
+        Tensor(shape=(256, 256), dtype=torch.float32, numel=65,536)
+      ['mae_model.blocks.0.attn.proj.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.attn.adapter.down.weight']:
+        Tensor(shape=(256, 256), dtype=torch.float32, numel=65,536)
+      ['mae_model.blocks.0.attn.adapter.down.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.attn.adapter.up.weight']:
+        Tensor(shape=(512, 256), dtype=torch.float32, numel=131,072)
+      ['mae_model.blocks.0.attn.adapter.up.bias']:
+        Tensor(shape=(512,), dtype=torch.float32, numel=512)
+      ['mae_model.blocks.0.attn.adapter.scene_modulation.0.weight']:
+        Tensor(shape=(256, 64), dtype=torch.float32, numel=16,384)
+      ['mae_model.blocks.0.attn.adapter.scene_modulation.0.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.norm2.weight']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.norm2.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.0.mlp.fc1.weight']:
+        Tensor(shape=(512, 256), dtype=torch.float32, numel=131,072)
+      ['mae_model.blocks.0.mlp.fc1.bias']:
+        Tensor(shape=(512,), dtype=torch.float32, numel=512)
+      ['mae_model.blocks.0.mlp.fc2.weight']:
+        Tensor(shape=(256, 512), dtype=torch.float32, numel=131,072)
+      ['mae_model.blocks.0.mlp.fc2.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.1.norm1.weight']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.1.norm1.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.1.attn.qkv.weight']:
+        Tensor(shape=(768, 256), dtype=torch.float32, numel=196,608)
+      ['mae_model.blocks.1.attn.qkv.bias']:
+        Tensor(shape=(768,), dtype=torch.float32, numel=768)
+      ['mae_model.blocks.1.attn.proj.weight']:
+        Tensor(shape=(256, 256), dtype=torch.float32, numel=65,536)
+      ['mae_model.blocks.1.attn.proj.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.1.attn.adapter.down.weight']:
+        Tensor(shape=(256, 256), dtype=torch.float32, numel=65,536)
+      ['mae_model.blocks.1.attn.adapter.down.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.1.attn.adapter.up.weight']:
+        Tensor(shape=(512, 256), dtype=torch.float32, numel=131,072)
+      ['mae_model.blocks.1.attn.adapter.up.bias']:
+        Tensor(shape=(512,), dtype=torch.float32, numel=512)
+      ['mae_model.blocks.1.attn.adapter.scene_modulation.0.weight']:
+        Tensor(shape=(256, 64), dtype=torch.float32, numel=16,384)
+      ['mae_model.blocks.1.attn.adapter.scene_modulation.0.bias']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ['mae_model.blocks.1.norm2.weight']:
+        Tensor(shape=(256,), dtype=torch.float32, numel=256)
+      ... (26 more entries)
+  ['local_states']:
+    dict(keys=4)
+      ['client_0']:
+        dict(keys=4)
+          ['local_params']:
+            dict(keys=42)
+              ['mae_model.decoder_embed.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_embed.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.0.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.0.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.0.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.0.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.1.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.1.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.1.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.1.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.2.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.2.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.2.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ... (7 more entries)
+          ['optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=100)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=2)
+                  ... (maximum display depth reached)
+          ['scene_encoder']:
+            OrderedDict(keys=8)
+              ['patch_embed.proj.weight']:
+                Tensor(shape=(256, 9, 8, 8), dtype=torch.float32, numel=147,456)
+              ['patch_embed.proj.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.weight']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['projection.0.weight']:
+                Tensor(shape=(64, 256), dtype=torch.float32, numel=16,384)
+              ['projection.0.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+              ['projection.2.weight']:
+                Tensor(shape=(64, 64), dtype=torch.float32, numel=4,096)
+              ['projection.2.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+          ['scene_optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=4)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=1)
+                  ... (maximum display depth reached)
+      ['client_1']:
+        dict(keys=4)
+          ['local_params']:
+            dict(keys=42)
+              ['mae_model.decoder_embed.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_embed.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.0.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.0.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.0.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.0.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.1.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.1.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.1.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.1.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.2.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.2.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.2.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ... (7 more entries)
+          ['optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=100)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=2)
+                  ... (maximum display depth reached)
+          ['scene_encoder']:
+            OrderedDict(keys=8)
+              ['patch_embed.proj.weight']:
+                Tensor(shape=(256, 9, 8, 8), dtype=torch.float32, numel=147,456)
+              ['patch_embed.proj.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.weight']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['projection.0.weight']:
+                Tensor(shape=(64, 256), dtype=torch.float32, numel=16,384)
+              ['projection.0.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+              ['projection.2.weight']:
+                Tensor(shape=(64, 64), dtype=torch.float32, numel=4,096)
+              ['projection.2.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+          ['scene_optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=4)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=1)
+                  ... (maximum display depth reached)
+      ['client_2']:
+        dict(keys=4)
+          ['local_params']:
+            dict(keys=42)
+              ['mae_model.decoder_embed.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_embed.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.0.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.0.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.0.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.0.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.1.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.1.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.1.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.1.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.2.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.2.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.2.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ... (7 more entries)
+          ['optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=100)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=2)
+                  ... (maximum display depth reached)
+          ['scene_encoder']:
+            OrderedDict(keys=8)
+              ['patch_embed.proj.weight']:
+                Tensor(shape=(256, 9, 8, 8), dtype=torch.float32, numel=147,456)
+              ['patch_embed.proj.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.weight']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['projection.0.weight']:
+                Tensor(shape=(64, 256), dtype=torch.float32, numel=16,384)
+              ['projection.0.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+              ['projection.2.weight']:
+                Tensor(shape=(64, 64), dtype=torch.float32, numel=4,096)
+              ['projection.2.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+          ['scene_optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=4)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=1)
+                  ... (maximum display depth reached)
+      ['client_3']:
+        dict(keys=4)
+          ['local_params']:
+            dict(keys=42)
+              ['mae_model.decoder_embed.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_embed.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.0.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.0.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.0.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.0.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.0.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.0.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.1.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.1.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.1.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.1.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc1.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['mae_model.decoder_blocks.1.mlp.fc2.weight']:
+                Tensor(shape=(128, 256), dtype=torch.float32, numel=32,768)
+              ['mae_model.decoder_blocks.1.mlp.fc2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm1.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.attn.qkv.weight']:
+                Tensor(shape=(384, 128), dtype=torch.float32, numel=49,152)
+              ['mae_model.decoder_blocks.2.attn.qkv.bias']:
+                Tensor(shape=(384,), dtype=torch.float32, numel=384)
+              ['mae_model.decoder_blocks.2.attn.proj.weight']:
+                Tensor(shape=(128, 128), dtype=torch.float32, numel=16,384)
+              ['mae_model.decoder_blocks.2.attn.proj.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.weight']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.norm2.bias']:
+                Tensor(shape=(128,), dtype=torch.float32, numel=128)
+              ['mae_model.decoder_blocks.2.mlp.fc1.weight']:
+                Tensor(shape=(256, 128), dtype=torch.float32, numel=32,768)
+              ... (7 more entries)
+          ['optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=100)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=2)
+                  ... (maximum display depth reached)
+          ['scene_encoder']:
+            OrderedDict(keys=8)
+              ['patch_embed.proj.weight']:
+                Tensor(shape=(256, 9, 8, 8), dtype=torch.float32, numel=147,456)
+              ['patch_embed.proj.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.weight']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['patch_embed.norm.bias']:
+                Tensor(shape=(256,), dtype=torch.float32, numel=256)
+              ['projection.0.weight']:
+                Tensor(shape=(64, 256), dtype=torch.float32, numel=16,384)
+              ['projection.0.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+              ['projection.2.weight']:
+                Tensor(shape=(64, 64), dtype=torch.float32, numel=4,096)
+              ['projection.2.bias']:
+                Tensor(shape=(64,), dtype=torch.float32, numel=64)
+          ['scene_optimizer']:
+            dict(keys=2)
+              ['state']:
+                dict(keys=4)
+                  ... (maximum display depth reached)
+              ['param_groups']:
+                list(length=1)
+                  ... (maximum display depth reached)
+  ['micro_auc']:
+    float64: np.float64(0.8514219529452123)
+  ['macro_auc']:
+    float64: np.float64(0.8847474166153494)
+  ['round']:
+    int: 10
+  ['args']:
+    ConfigDict(keys=35)
+      ['abnormal_score_func']:
+        list(length=2)
+          [0]:
+            str: 'L2'
+          [1]:
+            str: 'L2'
+      ['batch_size']:
+        int: 100
+      ['dataset']:
+        str: 'shanghai'
+      ['device']:
+        str: 'cuda'
+      ['fed_global_rounds']:
+        int: 50
+      ['fed_local_epochs']:
+        int: 5
+      ['fed_local_parts']:
+        list(length=1)
+          [0]:
+            str: 'adapter'
+      ['fed_mid_dim']:
+        int: 256
+      ['fed_num_clients']:
+        int: 4
+      ['fed_prefix_depth']:
+        int: 3
+      ['fed_scale']:
+        float: 1.5
+      ['fed_scene_dim']:
+        int: 64
+      ['fed_vanilla']:
+        str: '-'
+      ['grad_weighted_rec_loss']:
+        bool: True
+      ['input_3d']:
+        bool: True
+      ['input_size']:
+        tuple(length=2)
+          [0]:
+            int: 160
+          [1]:
+            int: 320
+      ['lr']:
+        float: 0.0001
+      ['mask_ratio']:
+        float: 0.5
+      ['masking_method']:
+        str: 'random_masking'
+      ['min_data_proportion']:
+        float: 0.08
+      ['model']:
+        str: 'mae_vit'
+      ['norm_pix_loss']:
+        bool: False
+      ['num_workers']:
+        int: 5
+      ['output_dir']:
+        str: 'experiments/shanghai_fed__ge_m1_sceen'
+      ['percent_abnormal']:
+        float: 0.3
+      ['pin_mem']:
+        bool: False
+      ['print_freq']:
+        int: 10
+      ['resume']:
+        bool: False
+      ['run_type']:
+        str: 'train'
+      ['seed']:
+        int: 42
+      ['shanghai_gt_path']:
+        str: '/mnt/private/xwy/aed-mae/data/shanghaitech_AED/Shanghai_gt'
+      ['shanghai_path']:
+        str: '/mnt/private/xwy/aed-mae/data/shanghaitech_AED'
+      ['start_epoch']:
+        int: 0
+      ['use_only_masked_tokens_ab']:
+        bool: False
+      ['weight_decay']:
+        float: 0.05
+  ['timestamp']:
+    float: 1776972337.4969978
+
+[7] Initial assessment
+  Global parameters and a client-state section are both present.
+  This is consistent with a federated checkpoint containing shared and personalized state.
+  Client entries: client_0, client_1, client_2, client_3
+  The four expected client IDs (client_0 to client_3) are present.
+
+Inspection finished. No model weights were modified.

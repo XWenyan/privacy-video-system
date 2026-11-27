@@ -19,8 +19,8 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("视频隐私保护与异常检测系统")
-        self.resize(1280, 850)
-        self.setMinimumSize(1050, 700)
+        self.resize(1440, 960)
+        self.setMinimumSize(1350,900)
 
         self.init_ui()
         self.apply_styles()
